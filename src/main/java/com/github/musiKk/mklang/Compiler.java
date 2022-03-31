@@ -143,9 +143,8 @@ class CodeEmitterVisitor extends Visitor.Adapter {
         if (new DottedName("print").equals(functionCall.getName())) {
             mv.visitFieldInsn(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
 
-            CodeEmitterVisitor cev = new CodeEmitterVisitor(mv);
             for (Expression e : functionCall.getArgs()) {
-                e.accept(cev);
+                e.accept(this);
             }
 
             mv.visitMethodInsn(INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V", false);
