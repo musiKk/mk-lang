@@ -6,9 +6,9 @@ options {
 
 PARSER_BEGIN(Example)
 
-package javaccexample;
+package com.github.musiKk.mklang;
 
-import test.ast.*;
+import com.github.musiKk.mklang.ast.*;
 import java.util.*;
 
 public class Example {
