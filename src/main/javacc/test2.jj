@@ -1,0 +1,288 @@
+options {
+    DEBUG_PARSER = true;
+    //FORCE_LA_CHECK = true;
+    //DEBUG_LOOKAHEAD = true;
+}
+
+PARSER_BEGIN(Example)
+
+package javaccexample;
+
+import test.ast.*;
+import java.util.*;
+
+public class Example {
+}
+
+PARSER_END(Example)
+
+TOKEN :
+{
+    <VAR: "var">
+    | <VAL: "val">
+
+    | <FOR: "for">
+
+    | <DATA: "data">
+    | <TRAIT: "trait">
+    | <IMPL: "impl">
+    | <FUN: "fun">
+    | <ISA: "isa">
+}
+
+TOKEN :
+{
+    <NAME: (["A"-"Z","a"-"z"])+ >
+    //| <NUMBER: (["0"-"9"])+ | (["0"-"9"])+ "." (["0"-"9"])+>
+    | <NUMBER: (["0"-"9"])+>
+    | <STRING: "\"" (~["\""])* "\"">
+}
+
+SKIP :
+{
+    " " | "\t" | "\n"
+}
+
+SPECIAL_TOKEN :
+{
+  <SINGLE_LINE_COMMENT: "//" (~["\n","\r"])*>
+}
+
+CompilationUnit compilationUnit(): {
+    CompilationUnit cu = new CompilationUnit();
+    Statement stmt;
+}
+{
+    (stmt = statement() { cu.addStatement(stmt); })*
+    { return cu; }
+}
+
+List<Statement> statements(): {
+    List<Statement> ret = new ArrayList<>();
+    Statement s;
+}
+{
+    s = statement() { ret.add(s); } (s = statement() { ret.add(s); })*
+    { return ret; }
+}
+
+Statement statement(): {
+    Statement stmt = null;
+    Expression expr;
+}
+{
+    (
+        stmt = dataDeclarationStatement()
+        | traitDeclarationExpression()
+        | LOOKAHEAD(implDeclarationExpression()) implDeclarationExpression()
+        | functionDeclarationExpression()
+        | variableDeclaration()
+        | expr = expression() { stmt = new ExpressionStatement(expr); }
+    )
+    { return stmt; }
+}
+
+DataDeclarationStatement dataDeclarationStatement(): {
+    String name;
+    List<FieldDeclaration> fieldDeclarations = null;
+}
+{
+    <DATA> <NAME> { name = token.image; }
+    (
+        LOOKAHEAD(1) // hope that's right
+        "{"
+        (
+            "}" | (fieldDeclarations = fieldDeclarations() "}")
+        )
+    )?
+    { return new DataDeclarationStatement(name, fieldDeclarations); }
+}
+
+List<FieldDeclaration> fieldDeclarations(): {
+    List<FieldDeclaration> decls = new ArrayList<>();
+    FieldDeclaration decl;
+}
+{
+    decl = fieldDeclaration() { decls.add(decl); }
+    (fieldDeclaration() { decls.add(decl); })*
+    { return decls; }
+}
+
+FieldDeclaration fieldDeclaration(): {
+    String name;
+    DottedName type;
+}
+{
+    <NAME> { name = token.image; } ":" type = dottedName()
+    { return new FieldDeclaration(name, type); }
+}
+
+void traitDeclarationExpression(): {}
+{
+    <TRAIT> <NAME>
+    (
+        LOOKAHEAD(1) // hope that's right
+        "{"
+        (
+            "}" | (functionSignatureDeclarations() "}")
+        )
+    )?
+}
+
+void functionSignatureDeclarations(): {}
+{
+    functionSignatureDeclaration() (functionSignatureDeclaration())*
+}
+
+void functionSignatureDeclaration(): {}
+{
+    <FUN> dottedName() "("
+    (
+        ")" | (parameters() ")")
+    )
+    ":"
+    dottedName()
+}
+
+void parameters(): {}
+{
+    parameter() ("," parameter())*
+}
+
+void parameter(): {}
+{
+    <NAME> ":" dottedName()
+}
+
+//void implDeclarationExpression(): {}
+//{
+//    <IMPL> <NAME> <FOR> <NAME>
+//    (
+//        LOOKAHEAD(1) // hope that's right
+//        "{"
+//        (
+//            "}"
+//            | statements() "}"
+//        )
+//    )?
+//}
+
+void implDeclarationExpression(): {}
+{
+    <NAME> <ISA> dottedName()
+}
+
+void functionDeclarationExpression(): {}
+{
+    functionSignatureDeclaration() "=" expression()
+}
+
+void variableDeclaration(): {}
+{
+    ("var" | "val") <NAME> (":" <NAME>)? "=" expression()
+}
+
+Expression expression(): {
+    Expression ret;
+}
+{
+    //LOOKAHEAD(<NAME> "=") assignmentExpression()
+    //|
+    ret = additiveExpression()
+    { return ret; }
+}
+
+void assignmentExpression(): {}
+{
+    <NAME> "=" additiveExpression()
+}
+
+Expression additiveExpression(): {
+    Expression ret;
+    Expression right;
+}
+{
+    ret = multiplicativeExpression()
+    (
+        "+" right = additiveExpression() { ret = new Expression.Additive("+", ret, right); }
+    )?
+    { return ret; }
+}
+
+Expression multiplicativeExpression(): {
+    Expression ret;
+    Expression right;
+}
+{
+    ret = primary()
+    (
+        "*" right = multiplicativeExpression() { ret = new Expression.Multiplicative("*", ret, right); }
+    )?
+    { return ret; }
+}
+
+Expression primary(): {
+    Expression ret;
+}
+{
+    (
+        "(" ret = expression() ")"
+        | ret = block()
+        //| LOOKAHEAD(methodCallExpression()) methodCallExpression()
+        | LOOKAHEAD(functionCallExpression()) ret = functionCallExpression()
+        | <NUMBER> { ret = new Expression.IntConstant(Integer.parseInt(token.image)); }
+        | dottedName() { ret = null; }
+        | <STRING> { ret = new Expression.StringConstant(token.image.substring(1, token.image.length() - 1)); }
+    )
+    { return ret; }
+}
+
+DottedName dottedName(): {
+    DottedName dn = new DottedName();
+}
+{
+    <NAME> { dn.addSegment(token.image); }
+    ("." <NAME> { dn.addSegment(token.image); })*
+    { return dn; }
+}
+
+Expression block(): {
+    List<Statement> statements;
+}
+{
+    "{"
+        statements = statements()
+    "}"
+    { return new Expression.Block(statements); }
+}
+
+//void methodCallExpression(): {}
+//{
+//    dottedName() "(" (args())? ")"
+//}
+
+Expression functionCallExpression(): {
+    DottedName name;
+    List<Expression> args = null;
+}
+{
+    name = dottedName() "(" (args = args())? ")"
+    { return new Expression.FunctionCall(name, args); }
+}
+
+List<Expression> args(): {
+    List<Expression> ret = new ArrayList<>();
+    Expression e;
+}
+{
+    e = arg() { ret.add(e); } ("," e = arg() { ret.add(e); } )*
+    { return ret; }
+}
+
+Expression arg(): {
+    Expression ret;
+}
+{
+    ret = expression()
+    { return ret; }
+}
