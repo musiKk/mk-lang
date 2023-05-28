@@ -20,7 +20,7 @@ public interface Visitor {
 
     public void visitFunctionCallExpression(FunctionCall functionCall);
 
-    public void acceptBlock(Block block);
+    public void visitBlock(Block block);
 
     public class Adapter implements Visitor {
 
@@ -49,7 +49,7 @@ public interface Visitor {
         }
 
         @Override
-        public void acceptBlock(Block block) {
+        public void visitBlock(Block block) {
         }
 
     }

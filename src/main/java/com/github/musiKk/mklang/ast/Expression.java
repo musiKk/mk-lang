@@ -22,7 +22,7 @@ public interface Expression extends Statement {
         }
 
         public void accept(Visitor visitor) {
-            visitor.acceptBlock(this);
+            visitor.visitBlock(this);
         }
     }
 
