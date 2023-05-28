@@ -20,6 +20,8 @@ public interface Visitor {
 
     public void visitFunctionCallExpression(FunctionCall functionCall);
 
+    public void visitVariableDeclaration(VariableDeclaration variableDeclaration);
+
     public void visitVariableAssignment(VariableAssignment vs);
 
     public void visitBlock(Block block);
@@ -58,6 +60,11 @@ public interface Visitor {
         public void visitVariableAssignment(VariableAssignment vs) {
         }
 
+        @Override
+        public void visitVariableDeclaration(VariableDeclaration variableDeclaration) {
+        }
+
     }
+
 
 }

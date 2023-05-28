@@ -178,9 +178,14 @@ void functionDeclarationExpression(): {}
     functionSignatureDeclaration() "=" expression()
 }
 
-void variableDeclaration(): {}
+VariableDeclaration variableDeclaration(): {
+    String name;
+    String type = null;
+    Expression value;
+}
 {
-    ("var" | "val") <NAME> (":" <NAME>)? "=" expression()
+    "var" <NAME> { name = token.image; } (":" <NAME> { type = token.image; })? "=" value = expression()
+    { return new VariableDeclaration(name, type, value); }
 }
 
 VariableAssignment variableAssignment(): {
