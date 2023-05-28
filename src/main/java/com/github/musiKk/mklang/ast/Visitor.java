@@ -20,6 +20,8 @@ public interface Visitor {
 
     public void visitFunctionCallExpression(FunctionCall functionCall);
 
+    public void visitVariableAssignment(VariableAssignment vs);
+
     public void visitBlock(Block block);
 
     public class Adapter implements Visitor {
@@ -50,6 +52,10 @@ public interface Visitor {
 
         @Override
         public void visitBlock(Block block) {
+        }
+
+        @Override
+        public void visitVariableAssignment(VariableAssignment vs) {
         }
 
     }

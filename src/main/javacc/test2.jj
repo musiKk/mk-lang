@@ -75,8 +75,9 @@ Statement statement(): {
         stmt = dataDeclarationStatement()
         | traitDeclarationExpression()
         | LOOKAHEAD(implDeclarationExpression()) implDeclarationExpression()
-        | functionDeclarationExpression()
-        | variableDeclaration()
+        | LOOKAHEAD(functionDeclarationExpression()) functionDeclarationExpression()
+        | LOOKAHEAD(variableDeclaration()) variableDeclaration()
+        | LOOKAHEAD(variableAssignment()) variableAssignment()
         | expr = expression() { stmt = new ExpressionStatement(expr); }
     )
     { return stmt; }
@@ -182,19 +183,21 @@ void variableDeclaration(): {}
     ("var" | "val") <NAME> (":" <NAME>)? "=" expression()
 }
 
+VariableAssignment variableAssignment(): {
+    String name;
+    Expression value;
+}
+{
+    <NAME> { name = token.image; } "=" value = expression()
+    { return new VariableAssignment(name, value); }
+}
+
 Expression expression(): {
     Expression ret;
 }
 {
-    //LOOKAHEAD(<NAME> "=") assignmentExpression()
-    //|
     ret = additiveExpression()
     { return ret; }
-}
-
-void assignmentExpression(): {}
-{
-    <NAME> "=" additiveExpression()
 }
 
 Expression additiveExpression(): {
