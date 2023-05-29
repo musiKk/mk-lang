@@ -73,7 +73,7 @@ Statement statement(): {
 {
     (
         stmt = dataDeclarationStatement()
-        | traitDeclarationExpression()
+        | traitDeclarationStatement()
         | LOOKAHEAD(implDeclarationExpression()) implDeclarationExpression()
         | LOOKAHEAD(functionDeclarationExpression()) functionDeclarationExpression()
         | LOOKAHEAD(variableDeclaration()) variableDeclaration()
@@ -118,41 +118,62 @@ FieldDeclaration fieldDeclaration(): {
     { return new FieldDeclaration(name, type); }
 }
 
-void traitDeclarationExpression(): {}
+TraitDeclarationStatement traitDeclarationStatement(): {
+    String name;
+    List<FunctionSignatureDeclaration> functionSignatureDeclarations = new ArrayList<>();
+}
 {
-    <TRAIT> <NAME>
+    <TRAIT> <NAME> { name = token.image; }
     (
         LOOKAHEAD(1) // hope that's right
         "{"
         (
-            "}" | (functionSignatureDeclarations() "}")
+            "}" | (functionSignatureDeclarations = functionSignatureDeclarations() "}")
         )
     )?
+    { return new TraitDeclarationStatement(name, functionSignatureDeclarations); }
 }
 
-void functionSignatureDeclarations(): {}
+List<FunctionSignatureDeclaration> functionSignatureDeclarations(): {
+    List<FunctionSignatureDeclaration> ret = new ArrayList<>();
+    FunctionSignatureDeclaration decl;
+}
 {
-    functionSignatureDeclaration() (functionSignatureDeclaration())*
+    decl = functionSignatureDeclaration() { ret.add(decl); } (decl = functionSignatureDeclaration() { ret.add(decl); })*
+    { return ret; }
 }
 
-void functionSignatureDeclaration(): {}
+FunctionSignatureDeclaration functionSignatureDeclaration(): {
+    DottedName name;
+    DottedName type;
+    List<FunctionSignatureDeclaration.Parameter> parameters = new ArrayList<>();
+}
 {
-    <FUN> dottedName() "("
+    <FUN> name = dottedName() "("
     (
-        ")" | (parameters() ")")
+        ")" | (parameters = parameters() ")")
     )
     ":"
-    dottedName()
+    type = dottedName()
+    { return new FunctionSignatureDeclaration(name, type, parameters); }
 }
 
-void parameters(): {}
+List<FunctionSignatureDeclaration.Parameter> parameters(): {
+    FunctionSignatureDeclaration.Parameter p;
+    List<FunctionSignatureDeclaration.Parameter> ret = new ArrayList<>();
+}
 {
-    parameter() ("," parameter())*
+    p = parameter() { ret.add(p); } ("," p = parameter() { ret.add(p); })*
+    { return ret; }
 }
 
-void parameter(): {}
+FunctionSignatureDeclaration.Parameter parameter(): {
+    String name;
+    DottedName type;
+}
 {
-    <NAME> ":" dottedName()
+    <NAME> { name = token.image; } ":" type = dottedName()
+    { return new FunctionSignatureDeclaration.Parameter(name, type); }
 }
 
 //void implDeclarationExpression(): {}

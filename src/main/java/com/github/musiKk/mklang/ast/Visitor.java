@@ -12,6 +12,8 @@ public interface Visitor {
 
     public void visitDataDeclarationStatement(DataDeclarationStatement dataDeclarationStatement);
 
+    public void visitTraitDeclarationStatement(TraitDeclarationStatement traitDeclarationStatement);
+
     public void visitBinaryExpression(Binary binary);
 
     public void visitIntConstant(IntConstant intConstant);
@@ -62,6 +64,10 @@ public interface Visitor {
 
         @Override
         public void visitVariableDeclaration(VariableDeclaration variableDeclaration) {
+        }
+
+        @Override
+        public void visitTraitDeclarationStatement(TraitDeclarationStatement traitDeclarationStatement) {
         }
 
     }
