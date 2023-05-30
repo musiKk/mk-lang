@@ -75,9 +75,9 @@ Statement statement(): {
         stmt = dataDeclarationStatement()
         | traitDeclarationStatement()
         | LOOKAHEAD(implDeclarationExpression()) implDeclarationExpression()
-        | LOOKAHEAD(functionDeclarationExpression()) functionDeclarationExpression()
-        | LOOKAHEAD(variableDeclaration()) variableDeclaration()
-        | LOOKAHEAD(variableAssignment()) variableAssignment()
+        | LOOKAHEAD(functionDeclarationExpression()) stmt = functionDeclarationExpression()
+        | LOOKAHEAD(variableDeclaration()) stmt = variableDeclaration()
+        | LOOKAHEAD(variableAssignment()) stmt = variableAssignment()
         | expr = expression() { stmt = new ExpressionStatement(expr); }
     )
     { return stmt; }
@@ -194,9 +194,13 @@ void implDeclarationExpression(): {}
     <NAME> <ISA> dottedName()
 }
 
-void functionDeclarationExpression(): {}
+FunctionDeclaration functionDeclarationExpression(): {
+    FunctionSignatureDeclaration signature;
+    Expression expression;
+}
 {
-    functionSignatureDeclaration() "=" expression()
+    signature = functionSignatureDeclaration() "=" expression = expression()
+    { return new FunctionDeclaration(signature, expression); }
 }
 
 VariableDeclaration variableDeclaration(): {

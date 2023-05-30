@@ -8,25 +8,27 @@ import com.github.musiKk.mklang.ast.Expression.StringConstant;
 
 public interface Visitor {
 
-    public void visitCompilationUnit(CompilationUnit cu);
+    void visitCompilationUnit(CompilationUnit cu);
 
-    public void visitDataDeclarationStatement(DataDeclarationStatement dataDeclarationStatement);
+    void visitDataDeclarationStatement(DataDeclarationStatement dataDeclarationStatement);
 
-    public void visitTraitDeclarationStatement(TraitDeclarationStatement traitDeclarationStatement);
+    void visitTraitDeclarationStatement(TraitDeclarationStatement traitDeclarationStatement);
 
-    public void visitBinaryExpression(Binary binary);
+    void visitBinaryExpression(Binary binary);
 
-    public void visitIntConstant(IntConstant intConstant);
+    void visitIntConstant(IntConstant intConstant);
 
-    public void visitStringConstant(StringConstant stringConstant);
+    void visitStringConstant(StringConstant stringConstant);
 
-    public void visitFunctionCallExpression(FunctionCall functionCall);
+    void visitFunctionCallExpression(FunctionCall functionCall);
 
-    public void visitVariableDeclaration(VariableDeclaration variableDeclaration);
+    void visitVariableDeclaration(VariableDeclaration variableDeclaration);
 
-    public void visitVariableAssignment(VariableAssignment vs);
+    void visitVariableAssignment(VariableAssignment vs);
 
-    public void visitBlock(Block block);
+    void visitBlock(Block block);
+
+    void visitFunctionDeclaration(FunctionDeclaration functionDeclaration);
 
     public class Adapter implements Visitor {
 
@@ -68,6 +70,10 @@ public interface Visitor {
 
         @Override
         public void visitTraitDeclarationStatement(TraitDeclarationStatement traitDeclarationStatement) {
+        }
+
+        @Override
+        public void visitFunctionDeclaration(FunctionDeclaration functionDeclaration) {
         }
 
     }
