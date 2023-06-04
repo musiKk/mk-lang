@@ -72,8 +72,8 @@ Statement statement(): {
 }
 {
     (
-        stmt = dataDeclarationStatement()
-        | traitDeclarationStatement()
+        stmt = dataDeclaration()
+        | traitDeclaration()
         | LOOKAHEAD(implDeclarationExpression()) implDeclarationExpression()
         | LOOKAHEAD(functionDeclaration()) stmt = functionDeclaration()
         | LOOKAHEAD(variableDeclaration()) stmt = variableDeclaration()
@@ -83,7 +83,7 @@ Statement statement(): {
     { return stmt; }
 }
 
-DataDeclarationStatement dataDeclarationStatement(): {
+DataDeclaration dataDeclaration(): {
     String name;
     List<FieldDeclaration> fieldDeclarations = null;
 }
@@ -96,7 +96,7 @@ DataDeclarationStatement dataDeclarationStatement(): {
             "}" | (fieldDeclarations = fieldDeclarations() "}")
         )
     )?
-    { return new DataDeclarationStatement(name, fieldDeclarations); }
+    { return new DataDeclaration(name, fieldDeclarations); }
 }
 
 List<FieldDeclaration> fieldDeclarations(): {
@@ -118,7 +118,7 @@ FieldDeclaration fieldDeclaration(): {
     { return new FieldDeclaration(name, type); }
 }
 
-TraitDeclarationStatement traitDeclarationStatement(): {
+TraitDeclaration traitDeclaration(): {
     String name;
     List<FunctionSignatureDeclaration> functionSignatureDeclarations = new ArrayList<>();
 }
@@ -131,7 +131,7 @@ TraitDeclarationStatement traitDeclarationStatement(): {
             "}" | (functionSignatureDeclarations = functionSignatureDeclarations() "}")
         )
     )?
-    { return new TraitDeclarationStatement(name, functionSignatureDeclarations); }
+    { return new TraitDeclaration(name, functionSignatureDeclarations); }
 }
 
 List<FunctionSignatureDeclaration> functionSignatureDeclarations(): {

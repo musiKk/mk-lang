@@ -7,13 +7,14 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class DataDeclarationStatement implements Statement {
+public class TraitDeclaration implements Statement {
 
-    private String name;
-    private List<FieldDeclaration> fieldDeclarations;
+    String name;
+    List<FunctionSignatureDeclaration> functionSignatureDeclarations;
 
     @Override
     public void accept(Visitor visitor) {
-        visitor.visitDataDeclarationStatement(this);
+        visitor.visitTraitDeclaration(this);
     }
+
 }
