@@ -30,6 +30,10 @@ public interface Expression extends Statement {
         String getOp();
         Expression getLeft();
         Expression getRight();
+        @Override
+        default void accept(Visitor visitor) {
+            visitor.visitBinaryExpression(this);
+        }
     }
 
     @Data
@@ -38,9 +42,6 @@ public interface Expression extends Statement {
         String op;
         Expression left;
         Expression right;
-        public void accept(Visitor visitor) {
-            visitor.visitBinaryExpression(this);
-        }
     }
     @Data
     @AllArgsConstructor
@@ -48,9 +49,6 @@ public interface Expression extends Statement {
         String op;
         Expression left;
         Expression right;
-        public void accept(Visitor visitor) {
-            visitor.visitBinaryExpression(this);
-        }
     }
     @Data
     @AllArgsConstructor
