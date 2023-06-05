@@ -12,16 +12,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.stream.Collectors;
+
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
 
 import com.github.musiKk.mklang.Compiler.Context;
 import com.github.musiKk.mklang.ast.CompilationUnit;
-import com.github.musiKk.mklang.ast.DataDeclarationStatement;
+import com.github.musiKk.mklang.ast.DataDeclaration;
 import com.github.musiKk.mklang.ast.DottedName;
 import com.github.musiKk.mklang.ast.Expression;
 import com.github.musiKk.mklang.ast.Expression.FunctionCall;
@@ -30,10 +29,6 @@ import com.github.musiKk.mklang.ast.Expression.StringConstant;
 import com.github.musiKk.mklang.ast.FieldDeclaration;
 import com.github.musiKk.mklang.ast.Statement;
 import com.github.musiKk.mklang.ast.Visitor;
-
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
 
 import lombok.AllArgsConstructor;
 
@@ -56,20 +51,6 @@ public class Compiler {
             if (destination.isFile()) {
                 throw new RuntimeException("destination " + destination + " is a file");
             }
-            Files.walkFileTree(destination.toPath(), new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    file.toFile().delete();
-                    return FileVisitResult.CONTINUE;
-                }
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    if (!dir.toFile().equals(destination)) {
-                        dir.toFile().delete();
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-            });
         }
         destination.mkdirs();
 
@@ -171,7 +152,7 @@ class DataDeclarationStatementVisitor extends Visitor.Adapter {
     private Context c;
 
     @Override
-    public void visitDataDeclarationStatement(DataDeclarationStatement dataDeclarationStatement) {
+    public void visitDataDeclaration(DataDeclaration dataDeclarationStatement) {
         String className = c.name + "$" + dataDeclarationStatement.getName();
 
         ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS + ClassWriter.COMPUTE_FRAMES);

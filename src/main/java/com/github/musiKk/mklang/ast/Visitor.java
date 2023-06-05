@@ -10,9 +10,9 @@ public interface Visitor {
 
     void visitCompilationUnit(CompilationUnit cu);
 
-    void visitDataDeclarationStatement(DataDeclarationStatement dataDeclarationStatement);
+    void visitDataDeclaration(DataDeclaration dataDeclaration);
 
-    void visitTraitDeclarationStatement(TraitDeclarationStatement traitDeclarationStatement);
+    void visitTraitDeclaration(TraitDeclaration traitDeclaration);
 
     void visitBinaryExpression(Binary binary);
 
@@ -37,7 +37,7 @@ public interface Visitor {
         }
 
         @Override
-        public void visitDataDeclarationStatement(DataDeclarationStatement dataDeclarationStatement) {
+        public void visitDataDeclaration(DataDeclaration dataDeclaration) {
         }
 
         @Override
@@ -69,7 +69,7 @@ public interface Visitor {
         }
 
         @Override
-        public void visitTraitDeclarationStatement(TraitDeclarationStatement traitDeclarationStatement) {
+        public void visitTraitDeclaration(TraitDeclaration traitDeclaration) {
         }
 
         @Override
